@@ -1,14 +1,23 @@
 namespace adventProj
 {
+    using System.Collections;
+    using System.Collections.Generic;
+
     internal class DayOne
     {
         internal static uint CountElfCalories(string elfCalorieInput, uint maxLinesToRead=uint.MaxValue)
         {
             //Console.WriteLine("counting calories from:\n{0}", elfCalorieInput);
 
+            // sorted top four uints of calories
+            // elfThreshold - if elf total > elfThreshold, set #4 to new elf total, and sort. 
+
             // read block of numbers, keep track of the largest block
             string [] elfCalorieLines = elfCalorieInput.Split("\n");
             uint maxCalories = 0, currentCalories = 0, currLine = 0;
+            
+            List<uint> elfCalorieTotals = new List<uint>();
+
             foreach (string input in elfCalorieLines)
             {
                 if (currLine >= maxLinesToRead)
@@ -27,21 +36,39 @@ namespace adventProj
                         currentCalories += calorieValue;
                     }
                 }
-                else {
 
-                    // Clear out current elf calorie counter for the next one
+                if (string.IsNullOrWhiteSpace(input) || currLine == elfCalorieLines.Count())
+                {
+                    // End of block or end of file
+                    // Save this elf's total; clear out current elf calorie counter for the next one
+                    // This assumes elves are always delimited by exactly one blank line (not more)
+                    elfCalorieTotals.Add(currentCalories);
                     currentCalories = 0;
                 }
 
-                    if (currentCalories > maxCalories)
-                    {
-                        //Console.WriteLine("new max = {0}", currentCalories);
-                        maxCalories = currentCalories;
-                    }
-
-                
-            
+                //if (currentCalories > maxCalories)
+                //{
+                    //Console.WriteLine("new max = {0}", currentCalories);
+                //    maxCalories = currentCalories;
+                //}
             }
+
+            // Now sort the elfCalorie list and take the top 3 . (could refactor for top X)
+            maxCalories = 0;
+
+            if (elfCalorieTotals.Any())
+            {
+                elfCalorieTotals.Sort();
+                int elfCount = elfCalorieTotals.Count;
+
+                // Example: count of 4, elfIndex = 4-3 = 1; add up index 1, 2, 3
+                for (int elfIndex = elfCount - 3; elfIndex >=0 && elfIndex < elfCount; elfIndex ++)
+                {
+                    Console.WriteLine("counting index {0}, calories {1}", elfIndex, elfCalorieTotals[elfIndex]);
+                    maxCalories = maxCalories + elfCalorieTotals[elfIndex];
+                }
+             }
+   
             return maxCalories;
         }
     }

@@ -15,6 +15,7 @@ namespace adventProj
                 {
                     break;
                 }
+
                 if (!string.IsNullOrWhiteSpace(input))
                 {
                     // Should be a number.  Ignore if not (ie: zero calories)

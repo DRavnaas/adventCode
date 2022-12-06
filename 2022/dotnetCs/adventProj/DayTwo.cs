@@ -34,6 +34,7 @@ namespace adventProj
              NotSet = BaseShape.NotSet
          }
 
+        // Used for part 1, not needed for part 2
         //  internal enum PlayedShape
         //  {
         //      X = BaseShape.Rock,
@@ -66,17 +67,16 @@ namespace adventProj
                 if (playedMoves != null && playedMoves.Count() == 2)
                 {
                      OpposingShape opposingMove = OpposingShape.NotSet;
-                     RoundScore thisRoundScore = (RoundScore) 0;
-                     uint playedMove = 0;
+                     RoundScore thisRoundResult = (RoundScore) 0;
+                     uint playedMove = 0, thisRoundScore = 0;
 
                     if (Enum.TryParse(playedMoves[0], out opposingMove))
                     {
-                        if (Enum.TryParse(playedMoves[1], out thisRoundScore))
+                        if (Enum.TryParse(playedMoves[1], out thisRoundResult))
                         {
-                            overallScore = overallScore + (uint) thisRoundScore;
 
                             // Was the result a draw?
-                            if (thisRoundScore == RoundScore.Y)
+                            if (thisRoundResult == RoundScore.Y)
                             {   
                                 // A draw, we have the same shape as the opposition
                                 playedMove = (uint)opposingMove;
@@ -84,7 +84,7 @@ namespace adventProj
                             else {
 
                                 // Draw already handled, so figure out win/loss moves
-                                switch (thisRoundScore) {
+                                switch (thisRoundResult) {
                                     case (RoundScore.X):
                                         
                                         // We need to lose
@@ -123,9 +123,10 @@ namespace adventProj
                                     break;
                                 }
 
-                                overallScore = overallScore + (uint) playedMove;
-
                             }
+
+                            thisRoundScore = (uint)thisRoundResult + (uint)playedMove;
+                            overallScore += thisRoundScore;
                         }
                     }
                 }

@@ -5,44 +5,49 @@
         static void Main(string[] args)
         {
             string testInput = String.Empty;
-            uint currentDay = 3; // which day are we working on
+            uint currentDay = 4; // which day are we working on
 
             if (args.Any())
             {
-                switch (currentDay) {
+                uint result = 0;
+
+                switch (currentDay)
+                {
                     case 1:
-                        uint daysAnswer = 0;
                         Console.WriteLine($"Reading input from {args[0]}");
                         testInput = ReadInputToText(args[0]);
-                        daysAnswer = DayOne.GetAnswer(testInput);
+                        result = DayOne.GetAnswer(testInput);
 
                         // test answer part 2 is 45000, input file is 206152
-                        Console.WriteLine($"\nMost calories: {daysAnswer}");
+                        Console.WriteLine($"\nMost calories: {result}");
                         break;
                     case 2:
-                        uint playerScore = 0;
                         Console.WriteLine($"Reading input from {args[0]}");
                         testInput = ReadInputToText(args[0]);
-                        playerScore = DayTwo.GetAnswer(testInput);
+                        result = DayTwo.GetAnswer(testInput);
 
-                        Console.WriteLine($"\nScore: {playerScore}");
+                        Console.WriteLine($"\nScore: {result}");
                         break;
                     case 3:
-                        uint overallSum = 0;
                         Console.WriteLine($"Reading input from {args[0]}");
                         testInput = ReadInputToText(args[0]);
-                        overallSum = DayThree.GetAnswer(testInput);
+                        result = DayThree.GetAnswer(testInput);
 
-                        Console.WriteLine($"\nSum: {overallSum}");
+                        Console.WriteLine($"\nSum: {result}");
+                        break;
+                    case 4:
+                        Console.WriteLine($"Reading input from {args[0]}");
+                        testInput = ReadInputToText(args[0]);
+                        result = DayFour.GetAnswer(testInput);
+
+                        Console.WriteLine($"\nSum: {result}");
                         break;
                     default:
                         Console.WriteLine("Unknown day");
                         break;
                 }
-            }      
+            }
         }
-
-     
 
         static string ReadInputToText(string filename)
         {

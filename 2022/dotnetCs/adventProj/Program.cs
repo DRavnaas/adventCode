@@ -4,19 +4,38 @@
     {
         static void Main(string[] args)
         {
-            string testInput = "1000\n2000\n3000\n\n4000\n\n5000\n6000\n\n7000\n8000\n9000\n\n10000";
-            uint testAnswer = 24000;
+            string testInput = String.Empty;
+            uint currentDay = 2; // which day are we working on
 
             if (args.Any())
             {
-                Console.WriteLine("Reading input from {0}", args[0]);
-                testInput = ReadInputToText(args[0]);
-            }
+                switch (currentDay) {
+                    case 1:
+                        uint daysAnswer = 0;
+                        Console.WriteLine($"Reading input from {args[0]}");
+                        testInput = ReadInputToText(args[0]);
+                        daysAnswer = DayOne.GetAnswer(testInput);
 
-            uint mostCalories = DayOne.CountElfCalories(testInput);
+                        // test answer part 2 is 45000, input file is 206152
+                        Console.WriteLine($"\nMost calories: {daysAnswer}");
+                        break;
+                    case 2:
+                        uint playerScore = 0;
+                        Console.WriteLine($"Reading input from {args[0]}");
+                        testInput = ReadInputToText(args[0]);
+                        playerScore = DayTwo.GetAnswer(testInput);
 
-            Console.WriteLine("\nMost calories: {0}\nExpected answer: {1}", mostCalories, testAnswer);
+                        // test answer part 2 is 45000, input file is 206152
+                        Console.WriteLine($"\nScore: {playerScore}");
+                        break;
+                    default:
+                        Console.WriteLine("Unknown day");
+                        break;
+                }
+            }      
         }
+
+     
 
         static string ReadInputToText(string filename)
         {

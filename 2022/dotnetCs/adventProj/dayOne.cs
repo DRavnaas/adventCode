@@ -5,10 +5,22 @@ namespace adventProj
 
     internal class DayOne
     {
+        internal static uint GetAnswer(string testInput)
+        {
+            if (String.IsNullOrEmpty(testInput))
+            {
+                testInput = "1000\n2000\n3000\n\n4000\n\n5000\n6000\n\n7000\n8000\n9000\n\n10000";
+            }
+
+            uint calorieAnswer = DayOne.CountElfCalories(testInput);
+
+            Console.WriteLine("\nMost calories: {0}", calorieAnswer);   
+
+            return calorieAnswer;
+        }
+
         internal static uint CountElfCalories(string elfCalorieInput, uint maxLinesToRead=uint.MaxValue)
         {
-            //Console.WriteLine("counting calories from:\n{0}", elfCalorieInput);
-
             // sorted top four uints of calories
             // elfThreshold - if elf total > elfThreshold, set #4 to new elf total, and sort. 
 

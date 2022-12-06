@@ -3,9 +3,9 @@ namespace adventProj
     using System.Collections;
     using System.Collections.Generic;
 
-    internal class DayOne
+    internal class DayOne  : DayTemplate
     {
-        internal static uint GetAnswer(string testInput)
+        internal override object GetAnswer(string testInput)
         {
             if (String.IsNullOrEmpty(testInput))
             {
@@ -16,7 +16,7 @@ namespace adventProj
 
             Console.WriteLine("\nMost calories: {0}", calorieAnswer);   
 
-            return calorieAnswer;
+            return (object)calorieAnswer;
         }
 
         internal static uint CountElfCalories(string elfCalorieInput, uint maxLinesToRead=uint.MaxValue)

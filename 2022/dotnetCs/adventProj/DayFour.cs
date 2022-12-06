@@ -4,7 +4,7 @@ namespace adventProj
     using System.Collections.Generic;
     using System.Diagnostics;
 
-    internal class DayFour
+    internal class DayFour  : DayTemplate
     {
         private struct AssignmentRange
         {
@@ -48,7 +48,7 @@ namespace adventProj
             }
         }
 
-        internal static uint GetAnswer(string testInput)
+        internal override object GetAnswer(string testInput)
         {
             uint retVal = 0;
 
@@ -100,7 +100,7 @@ namespace adventProj
 
             }
 
-            return retVal;
+            return (object)retVal;
         }
     }
 }

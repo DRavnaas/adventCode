@@ -4,10 +4,10 @@ namespace adventProj
     using System.Collections.Generic;
     using System.Diagnostics;
 
-    internal class DayThree
+    internal class DayThree  : DayTemplate
     {
 
-        internal static uint GetAnswer(string testInput)
+        internal override object GetAnswer(string testInput)
         {
             uint overallSum = 0;
 
@@ -82,7 +82,7 @@ namespace adventProj
                 overallSum += badgePriority;
             }
 
-            return overallSum;
+            return (object)overallSum;
         }
     }
 }

@@ -7,7 +7,7 @@ namespace adventProj
     internal class DayTemplate
     {
 
-        internal static uint GetAnswer(string testInput)
+        internal virtual object GetAnswer(string testInput)
         {
             uint retVal = 0;
 

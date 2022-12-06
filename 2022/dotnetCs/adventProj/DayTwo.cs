@@ -3,7 +3,7 @@ namespace adventProj
     using System.Collections;
     using System.Collections.Generic;
 
-    internal class DayTwo
+    internal class DayTwo  : DayTemplate
     {
         // outcome score = 0, 3, 6 = Loss, Draw, Win
 
@@ -43,7 +43,7 @@ namespace adventProj
         //      NotSet = BaseShape.NotSet
         //  };
 
-        internal static uint GetAnswer(string testInput)
+        internal override object GetAnswer(string testInput)
         {
             uint overallScore = 0;
 
@@ -138,7 +138,7 @@ namespace adventProj
             }
 
 
-            return overallScore;
+            return (object)overallScore;
         }
     }
 }

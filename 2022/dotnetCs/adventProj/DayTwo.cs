@@ -16,23 +16,23 @@ namespace adventProj
             Z = 6
         }
 
-         internal enum BaseShape
-         {
+        internal enum BaseShape
+        {
 
-             NotSet = 0,
-             Rock = 1,
-             Paper = 2,
-             Scissors = 3
-         }
+            NotSet = 0,
+            Rock = 1,
+            Paper = 2,
+            Scissors = 3
+        }
 
-         internal enum OpposingShape
-         {
-             A = BaseShape.Rock,
-             B = BaseShape.Paper,
-             C = BaseShape.Scissors,
+        internal enum OpposingShape
+        {
+            A = BaseShape.Rock,
+            B = BaseShape.Paper,
+            C = BaseShape.Scissors,
 
-             NotSet = BaseShape.NotSet
-         }
+            NotSet = BaseShape.NotSet
+        }
 
         // Used for part 1, not needed for part 2
         //  internal enum PlayedShape
@@ -49,7 +49,7 @@ namespace adventProj
 
             if (String.IsNullOrEmpty(testInput))
             {
-                // overallScore should be 15, test input should be 11767
+                // overallScore should be 15, test input part 1 should be 11767
                 testInput = "A Y\nB X\nC Z";
             }
 
@@ -66,9 +66,9 @@ namespace adventProj
 
                 if (playedMoves != null && playedMoves.Count() == 2)
                 {
-                     OpposingShape opposingMove = OpposingShape.NotSet;
-                     RoundScore thisRoundResult = (RoundScore) 0;
-                     uint playedMove = 0, thisRoundScore = 0;
+                    OpposingShape opposingMove = OpposingShape.NotSet;
+                    RoundScore thisRoundResult = (RoundScore)0;
+                    uint playedMove = 0, thisRoundScore = 0;
 
                     if (Enum.TryParse(playedMoves[0], out opposingMove))
                     {
@@ -77,16 +77,18 @@ namespace adventProj
 
                             // Was the result a draw?
                             if (thisRoundResult == RoundScore.Y)
-                            {   
+                            {
                                 // A draw, we have the same shape as the opposition
                                 playedMove = (uint)opposingMove;
                             }
-                            else {
+                            else
+                            {
 
                                 // Draw already handled, so figure out win/loss moves
-                                switch (thisRoundResult) {
+                                switch (thisRoundResult)
+                                {
                                     case (RoundScore.X):
-                                        
+
                                         // We need to lose
                                         if ((BaseShape)opposingMove == BaseShape.Rock)
                                         {
@@ -98,11 +100,12 @@ namespace adventProj
                                             // Their paper covers rock
                                             playedMove = (uint)BaseShape.Rock;
                                         }
-                                        else {
+                                        else
+                                        {
                                             // Their scissors cut paper
                                             playedMove = (uint)BaseShape.Paper;
                                         }
-                                    break;
+                                        break;
                                     case (RoundScore.Z):
 
                                         // We need to win
@@ -116,11 +119,12 @@ namespace adventProj
                                             // Our scissors cuts paper
                                             playedMove = (uint)BaseShape.Scissors;
                                         }
-                                        else {
+                                        else
+                                        {
                                             // Our rock breaks scissors
-                                            playedMove = (uint) BaseShape.Rock;
+                                            playedMove = (uint)BaseShape.Rock;
                                         }
-                                    break;
+                                        break;
                                 }
 
                             }
@@ -135,11 +139,6 @@ namespace adventProj
 
 
             return overallScore;
-        }
-
-        internal static uint CalculateScore(int playedShape, int opponentShape)
-        {
-            return 0;
         }
     }
 }

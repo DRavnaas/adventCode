@@ -5,7 +5,7 @@
         static void Main(string[] args)
         {
             string testInput = String.Empty;
-            uint currentDay = 2; // which day are we working on
+            uint currentDay = 3; // which day are we working on
 
             if (args.Any())
             {
@@ -25,8 +25,15 @@
                         testInput = ReadInputToText(args[0]);
                         playerScore = DayTwo.GetAnswer(testInput);
 
-                        // test answer part 2 is 45000, input file is 206152
                         Console.WriteLine($"\nScore: {playerScore}");
+                        break;
+                    case 3:
+                        uint overallSum = 0;
+                        Console.WriteLine($"Reading input from {args[0]}");
+                        testInput = ReadInputToText(args[0]);
+                        overallSum = DayThree.GetAnswer(testInput);
+
+                        Console.WriteLine($"\nSum: {overallSum}");
                         break;
                     default:
                         Console.WriteLine("Unknown day");

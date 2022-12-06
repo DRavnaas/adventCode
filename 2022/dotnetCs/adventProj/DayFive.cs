@@ -8,6 +8,14 @@ namespace adventProj
     {
         internal class Crate {
 
+            public string Name {
+                get; set;
+            }
+
+            Crate(string name)
+            {
+                Name = name;
+            }
             public static IDictionary<string, Stack<Crate>> BuildStacks(string crateStacksTextLines)
             {
                 IDictionary<string, Stack<Crate>> stackOfCrates = new Dictionary<string, Stack<Crate>>();
@@ -29,7 +37,22 @@ namespace adventProj
                 {
                     if (!String.IsNullOrWhiteSpace(cratesInput))
                     {
-                        //stackOfCrates.Add(input, new Stack<Crate>());
+                        // walk horizontal row by # of crates
+                        // (this assumes crate keys are in order they were added - check!)
+                        int crateInputIndex = 0;
+                        foreach(string cratePosition in stackOfCrates.Keys)
+                        {
+                            if (cratesInput[crateInputIndex] == '[')
+                            {
+                                // Push this crate onto the appropriate stack
+                                var currentCrate = new Crate(cratesInput[crateInputIndex+1].ToString());
+                                stackOfCrates[cratePosition].Push(currentCrate);
+                            }
+
+                            // Advance a column
+                            // This assumes single character crate names
+                            crateInputIndex += 4;
+                        }
                     }
                 }
 
@@ -40,7 +63,7 @@ namespace adventProj
 
         internal override object GetAnswer(string testInput)
         {
-            uint retVal = 0;
+            string retVal = "";
 
             //if (String.IsNullOrEmpty(testInput))
             {
@@ -54,6 +77,34 @@ namespace adventProj
             string[] cratesAndMoves = testInput.Split("\n\n");
 
             IDictionary<string, Stack<Crate>>crateStacks = Crate.BuildStacks(cratesAndMoves[0]);
+
+            string[] moves = cratesAndMoves[1].Split("\n");
+            foreach (string moveDetails in moves)
+            {
+                string[] moveParameters = moveDetails.Split(" ");
+
+                // index 1 = # crates, index 3 = from stack key, index 5 = to stack key
+                if (moveParameters.Count() == 5)
+                {
+                    int numCrates = 0;
+                    if (int.TryParse(moveParameters[1], out numCrates))
+                    {
+                        string fromStack = moveParameters[3];
+                        string toStack = moveParameters[5];
+
+                        for (int i = numCrates; i < numCrates+1; i++)
+                        {
+                            var crateMoved = crateStacks[fromStack].Pop();
+                            crateStacks[toStack].Push(crateMoved);
+                        }
+                    }
+                }
+            }
+
+            foreach (string key in crateStacks.Keys)
+            {
+                retVal+= (crateStacks[key].Peek().Name);
+            }
 
             return (object)retVal;
         }

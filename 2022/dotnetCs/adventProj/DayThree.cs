@@ -6,67 +6,80 @@ namespace adventProj
 
     internal class DayThree
     {
-        
+
         internal static uint GetAnswer(string testInput)
         {
             uint overallSum = 0;
 
             if (String.IsNullOrEmpty(testInput))
             {
-                // part 1 test input score for first line = 16
-                testInput = "vJrwpWtwJgWrhcsFMMfFFhFp\njqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL";
+                // part 1 test input score for first line = 16 (p), input summ 8349
+                // part 2 test input score for first three lines = 18 (r), input text file answer 2681
+                testInput = "vJrwpWtwJgWrhcsFMMfFFhFp\njqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL\nPmmdzqPrVvPwwTWBwg";
             }
 
-            // Break up rucksacks and then each rucksack into equal length compartments
+            // Process three rucksacks at a time for a group, finding the common item
             string[] ruckSacks = testInput.Split("\n");
-            foreach (string ruckSackContents in ruckSacks)
+            for (uint i = 0; i < ruckSacks.Count(); i = i + 3)
             {
-                if (ruckSackContents.Any())
+                Dictionary<char, bool> potentialCommonItems = new Dictionary<char, bool>();
+
+                for (uint currentRuckSackIndex = i; currentRuckSackIndex < i + 3; currentRuckSackIndex++)
                 {
-                    // compartments have same number items.
-                    string compartment1 = ruckSackContents.Substring(0, ruckSackContents.Count()/2);
-                    string compartment2 = ruckSackContents.Substring(compartment1.Count());
-
-                    if (compartment1.Count() == compartment1.Count())
+                    // For the first rucksack, build found item list = potential badge list for others
+                    if (currentRuckSackIndex == i)
                     {
-                        Dictionary<char, uint> compartment1Priorities = new Dictionary<char, uint>();
-                        uint commonItemPriority = 0;
-
-                        // initialize dictionary using 1st compartment items
-                        foreach (char item in compartment1)
+                        foreach (char item in ruckSacks[currentRuckSackIndex])
                         {
-                            uint itemPriority = 0;
-                            if (item >= 'a' && item <= 'z')
+                            if (!potentialCommonItems.ContainsKey(item))
                             {
-                                // lower case priority
-                                itemPriority = (uint)item - (uint)'a' + 1;
+                                potentialCommonItems.Add(item, true);
                             }
-                            else if (item >= 'A' && item <= 'Z')
+                        }
+                    }
+                    else
+                    {
+                        // For both second and third, store items that we find again
+                        Dictionary<char, bool> thisRoundCommon = new Dictionary<char, bool>();
+                        foreach (char item in ruckSacks[currentRuckSackIndex])
+                        {
+                            // If found in last round, then add to "found again" list
+                            if (potentialCommonItems.ContainsKey(item))
                             {
-                                // upper case priority
-                                itemPriority = (uint)item - (uint)'A' + 27;
-                            }
-
-                            if (!compartment1Priorities.ContainsKey(item))
-                            {
-                                compartment1Priorities.Add(item, itemPriority);
+                                if (!thisRoundCommon.ContainsKey(item))
+                                {
+                                    thisRoundCommon.Add(item, true);
+                                }
                             }
                         }
 
-                        // Now look for the common item 
-                        foreach(char item in compartment2)
-                        {
-                            if (compartment1Priorities.ContainsKey(item))
-                            {
-                                commonItemPriority = compartment1Priorities[item];
-                                break;
-                            }
-                        }
-
-                        // Add rucksack commont item priority
-                        overallSum += commonItemPriority;
+                        // Common items we found this round = candidates to track for next round
+                        potentialCommonItems = thisRoundCommon;
                     }
                 }
+
+
+                // Should only be one left = the badge.
+                uint badgePriority = 0;
+                if (potentialCommonItems.Count() == 1)
+                {
+                    char badge = potentialCommonItems.Keys.First();
+
+                    if (badge >= 'a' && badge <= 'z')
+                    {
+                        // lower case priority
+                        badgePriority = (uint)badge - (uint)'a' + 1;
+                    }
+                    else if (badge >= 'A' && badge <= 'Z')
+                    {
+                        // upper case priority
+                        badgePriority = (uint)badge - (uint)'A' + 27;
+                    }
+
+                }
+
+                // Add rucksack common item priority
+                overallSum += badgePriority;
             }
 
             return overallSum;

@@ -10,11 +10,12 @@ namespace adventProj
         internal override object GetAnswer(string testInput)
         {
             int retVal = 0;
+            int numUniqueCharsToFind = 4;
 
             if (String.IsNullOrEmpty(testInput))
             {
                 // part 1 test input file answer = 1929
-                
+
                 //testInput = "mjqjpqmgbljsphdztnvjfqwrcgsmlb"; // part one number = 7
                 //testInput = "bvwbplbgvbhsrlpgdmjqwftvncz"; // part one marker = 5
                 //testInput = "nppdvjthqldpwncqszvftbrmjlhg"; // part one marker = 6
@@ -35,10 +36,10 @@ namespace adventProj
                     // get a new character to add...
                     char newChar = transmission[i];
 
-                    if (i >= 4)
+                    if (i >= numUniqueCharsToFind)
                     {
                         // "shift off" char before adding another one = decrement or remove char
-                        char startingChar = transmission[i-4];
+                        char startingChar = transmission[i-numUniqueCharsToFind];
                         if (lastFour.ContainsKey(startingChar))
                         {
                             // Decrement count
@@ -69,7 +70,7 @@ namespace adventProj
                     }
 
                     // Are we done?  keys = chars = unique characters in our four key dictionary
-                    if (lastFour.Keys.Count() == 4)
+                    if (lastFour.Keys.Count() == numUniqueCharsToFind)
                     {
                         retVal = i+1;
                         break;

@@ -10,17 +10,18 @@ namespace adventProj
         internal override object GetAnswer(string testInput)
         {
             int retVal = 0;
-            int numUniqueCharsToFind = 4;
+            int numUniqueCharsToFind = 14;
 
             if (String.IsNullOrEmpty(testInput))
             {
                 // part 1 test input file answer = 1929
+                // part 2 test input file answer = 3298
 
                 //testInput = "mjqjpqmgbljsphdztnvjfqwrcgsmlb"; // part one number = 7
-                //testInput = "bvwbplbgvbhsrlpgdmjqwftvncz"; // part one marker = 5
+                //testInput = "bvwbjplbgvbhsrlpgdmjqwftvncz"; // part one marker = 5
                 //testInput = "nppdvjthqldpwncqszvftbrmjlhg"; // part one marker = 6
                 //testInput = "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg"; // part one marker = 10
-                testInput = "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw"; // part one marker = 11
+                //testInput = "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw"; // part one marker = 11
             }
 
             string[] transmissions = testInput.Split("\n");

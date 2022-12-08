@@ -10,8 +10,10 @@ namespace adventProj
         {
             uint retVal = 0;
 
-            //if (String.IsNullOrEmpty(testInput))
+            if (String.IsNullOrEmpty(testInput))
             {
+                // part 1: test answer = ; test input file answer is 1391690
+                // part 2: test answer = ; test input file answer is 
                 testInput = "$ cd / \n$ ls \ndir a\n14848514 b.txt \n8504156 c.dat \ndir d\n" +
                     "$ cd a \n$ ls \ndir e \n29116 f \n2557 g\n62596 h.lst\n" +
                     "$ cd e \n$ls \n584 i \n$ cd .. \n$ cd .. \n$ cd d \n$ls \n" +
@@ -20,11 +22,16 @@ namespace adventProj
 
             FileSystem fs = FileSystem.BuildFileSystem(testInput);
 
-            var filteredDirs = fs.FilterDirectories(100000);
+            // Get a list of all the dirs and their file + subtree sizes...
+            var dirs = fs.GetSubTreeDetails();
 
-            foreach(var dir in filteredDirs)
+            foreach (FolderDetails dir in dirs)
             {
-                retVal += dir.Size;
+                uint totalSizeIncludingSubdirs = dir.SizeOfSubDirs + dir.SizeOfFiles;
+                if (totalSizeIncludingSubdirs < 100000)
+                {
+                    retVal += totalSizeIncludingSubdirs;
+                }
             }
 
             return retVal;
@@ -50,28 +57,30 @@ namespace adventProj
             MoveToDirectory("/");
         }
 
-        public IEnumerable<FileSystemNode> FilterDirectories(uint maxSize)
+        public IEnumerable<FolderDetails> GetSubTreeDetails()
         {
-            List<FileSystemNode> matchingDirectories = new List<FileSystemNode>();
+            List<FolderDetails> dirDetails = new List<FolderDetails>();
 
-            if (this.CurrentDirectory.Size <= maxSize)
-            {
-                matchingDirectories.Add(this.CurrentDirectory);
-            }
-
-            // Doesn't currently include subdir size in parent dir size
+            FolderDetails thisDir = new FolderDetails(this.CurrentDirectory.Name, this.CurrentDirectory.Size, 0);
+            
             foreach (string childName in this.CurrentDirectory.GetChildrenNames())
             {
+                // We already have file size, get subtree sizes.
                 if (this.CurrentDirectory.ChildDirectoryExists(childName))
                 {
                     this.MoveToDirectory(childName);
-                    var matchingSubDirs = this.FilterDirectories(maxSize);
-                    matchingDirectories.AddRange(matchingSubDirs);
+
+                    var subTrees = this.GetSubTreeDetails();
+                    // Assumes last entry is the child, all others are children of children
+                    thisDir.SizeOfSubDirs += subTrees.Last().SizeOfSubDirs + subTrees.Last().SizeOfFiles;
+                    dirDetails.AddRange(subTrees);
+
                     this.MoveToDirectory("..");
                 }
             }
 
-            return matchingDirectories;
+            dirDetails.Add(thisDir);
+            return dirDetails;
         }
 
         public void MoveToDirectory(string name)
@@ -335,6 +344,28 @@ namespace adventProj
                 Children.Add(childDir);
             }
 
+        }
+    }
+
+    public class FolderDetails
+    {
+        public FolderDetails(string name, uint sizeOfFiles, uint sizeOfSubDirs)
+        {
+            Name = name;
+            SizeOfFiles = sizeOfFiles;
+            SizeOfSubDirs = sizeOfSubDirs;
+        }
+        public string Name 
+        { get; set;}
+
+        public uint SizeOfFiles
+        {
+            get; set;
+        }
+
+        public uint SizeOfSubDirs
+        {
+            get; set;
         }
     }
 }

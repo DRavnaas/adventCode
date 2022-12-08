@@ -18,6 +18,10 @@ namespace adventProj
                              "65332\n" +
                              "33549\n" +
                              "35390";
+
+                testInput = 
+                            "9\n6\n8\n4\n8"     
+                            ;
             }
 
             TreeGrid grid = TreeGrid.BuildTreeGrid(testInput);
@@ -25,7 +29,7 @@ namespace adventProj
             // IsVisible = on edge (first or last row, first or last colummn) or higher number than rest in row or column
 
             // count visible trees
-            retVal = grid.SetVisibleTreesInGrid();
+            retVal = grid.GetVisibleTreesInGrid();
 
             return retVal;
         }
@@ -80,7 +84,7 @@ namespace adventProj
 
                 return grid;
             }
-            public uint SetVisibleTreesInGrid()
+            public uint GetVisibleTreesInGrid()
             {
                 uint visibleCount = 0;
 
@@ -92,6 +96,7 @@ namespace adventProj
                     for (uint j=0; j < columns; j++)
                     {
                         bool isVisible = 
+                            IsOnEdge(i,j) ||
                             IsVisibleFromRight(i,j) ||
                             IsVisibleFromLeft(i,j) ||
                             IsVisibleFromTop(i,j) ||
@@ -107,9 +112,9 @@ namespace adventProj
                 return visibleCount;
             }
 
-            public bool IsVisibleFromRight(uint row, uint column)
+            public bool IsVisibleFromLeft(uint row, uint column)
             {
-                if (row == 0)
+                if (column == 0)
                 {
                     // Edge tree is always visible from right
                     return true;
@@ -134,9 +139,9 @@ namespace adventProj
                 return true;
             }
 
-            public bool IsVisibleFromLeft(uint row, uint column)
+            public bool IsVisibleFromRight(uint row, uint column)
             {
-                if (row == rows - 1)
+                if (column == column - 1)
                 {
                     return true;
                 }
@@ -160,9 +165,17 @@ namespace adventProj
                 return true;
             }
 
+            public bool IsOnEdge(uint row, uint column)
+            {
+                if (column == 0 || row == 0 || row == rows-1 || column == columns -1)
+                {
+                    return true;
+                }
+                return false;
+            }
             public bool IsVisibleFromTop(uint row, uint column)
             {
-                if (column == 0)
+                if (row == 0)
                 {
                     return true;
                 }
@@ -188,13 +201,13 @@ namespace adventProj
 
             public bool IsVisibleFromBottom(uint row, uint column)
             {
-                if (column == columns - 1)
+                if (row == row - 1)
                 {
                     return true;
                 }
 
                 uint maxHeightSoFar = 0;
-                for (uint i=row; i<rows-1; i--)
+                for (uint i=rows-1; i>row; i--)
                 {
                     uint currentHeight = grid[i, column].Height;
                     if (currentHeight > maxHeightSoFar)

@@ -277,11 +277,12 @@ namespace adventProj
 
         public override string ToString()
         {
-            if (this.IsRoot())
+            if (this.IsRoot() || this.Parent == null)  // compiler insisted on null check, IsRoot does it too
             {
                 return "/";
             }
             else {
+
                 return $"{this.Parent.ToString()}{this.Name}/";
             }
         }

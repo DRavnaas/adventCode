@@ -24,13 +24,39 @@ namespace adventProj
 
             // Get a list of all the dirs and their file + subtree sizes...
             var dirs = fs.GetSubTreeDetails();
+            uint totalSpace = 70000000;
+            
+            uint usedSpace = dirs.Last().SizeOfFiles + dirs.Last().SizeOfSubDirs;
+            Console.WriteLine($"used space:\t\t {usedSpace}");
+
+            uint desiredSpaceFree = 30000000;
+
+            if (totalSpace < usedSpace)
+            {
+                Console.WriteLine(" used space more than total space");
+            }
+
+            if (totalSpace - usedSpace < desiredSpaceFree)
+            {
+                desiredSpaceFree = usedSpace - desiredSpaceFree;
+                Console.WriteLine($"need to free up \t {desiredSpaceFree} more");
+            }
+
+            uint closestCandidateSize = uint.MaxValue;
 
             foreach (FolderDetails dir in dirs)
             {
                 uint totalSizeIncludingSubdirs = dir.SizeOfSubDirs + dir.SizeOfFiles;
-                if (totalSizeIncludingSubdirs < 100000)
+                
+                Console.WriteLine($" \t {dir.SizeOfFiles} \t + \t {dir.SizeOfSubDirs} = total  size \t {totalSizeIncludingSubdirs} \t for  \t {dir.Name}");
+                if (totalSizeIncludingSubdirs >= desiredSpaceFree)
                 {
-                    retVal += totalSizeIncludingSubdirs;
+                    //Console.WriteLine($"Candidate {dir.Name} size {totalSizeIncludingSubdirs} > {desiredSpaceFree}");
+                    if (totalSizeIncludingSubdirs < closestCandidateSize)
+                    {
+                        closestCandidateSize = totalSizeIncludingSubdirs;
+                        retVal = closestCandidateSize;
+                    }
                 }
             }
 
@@ -61,7 +87,8 @@ namespace adventProj
         {
             List<FolderDetails> dirDetails = new List<FolderDetails>();
 
-            FolderDetails thisDir = new FolderDetails(this.CurrentDirectory.Name, this.CurrentDirectory.Size, 0);
+            // Use current file size; we will calculate subdir size below.
+            FolderDetails thisDir = new FolderDetails(this.CurrentDirectory.ToString(), this.CurrentDirectory.SizeOfFiles, 0);
             
             foreach (string childName in this.CurrentDirectory.GetChildrenNames())
             {
@@ -161,7 +188,7 @@ namespace adventProj
                                         // could be /  . .. or <child directory name>
                                         string directoryName = commandAndParams[2];
                                         fs.MoveToDirectory(directoryName);
-                                        Console.WriteLine($"Changed to directory {fs.CurrentDirectory.Name}");
+                                        Console.WriteLine($"Changed to directory {fs.CurrentDirectory}");
 
 
                                     }
@@ -170,26 +197,23 @@ namespace adventProj
                                 case "ls":
                                     //processingListOutput = true;
 
-                                    // list current directory contents
-                                    Console.WriteLine($"Listing contents for directory {fs.CurrentDirectory.Name}");
-                                    var children = fs.CurrentDirectory.GetChildrenNames();
-                                    foreach (string childName in children)
-                                    {
-                                        Console.WriteLine("\t{childName}");
-                                    }
+                                    // list current directory contents - this is a cue to read in file names/sizes
+                                    Console.WriteLine($"Listing/adding contents for directory {fs.CurrentDirectory}");
                                     break;
                             }
 
                         }
                         else
                         {
+                            string name = commandAndParams[1];
+
                             // We can build a tree from two types of ls input
                             // <size> <filename>
                             // dir <dirname>
                             if (commandAndParams[0].StartsWith("dir"))
                             {
                                 // add a child directory
-                                fs.CurrentDirectory.AddChildDir(commandAndParams[1]);
+                                fs.CurrentDirectory.AddChildDir(name);
                             }
                             else
                             {
@@ -197,8 +221,8 @@ namespace adventProj
                                 uint size = 0;
                                 if (uint.TryParse(commandAndParams[0], out size))
                                 {
-
-                                    fs.CurrentDirectory.AddFile(commandAndParams[1], size);
+                                    fs.CurrentDirectory.AddFile(name, size);
+                                    Console.WriteLine($"\t\t Added file {name} size \t\t {size}");
                                 }
                             }
                         }
@@ -213,7 +237,8 @@ namespace adventProj
 
     internal class FileSystemNode
     {
-        private FileSystemNode(string name, uint size, FileSystemNode parent)
+        // File constructor
+        private FileSystemNode(string name, FileSystemNode parent, uint size)
         {
             // Files have to have a parent, and it must be a directory
             if ((parent != null) && (parent.IsDirectory))
@@ -225,11 +250,12 @@ namespace adventProj
                 throw new ArgumentException("Invalid parent for file constructor");
             }
             Name = name;
-            Size = size;
+            SizeOfFiles = size;
             IsDirectory = false;
             Children = new List<FileSystemNode>();
         }
 
+        // Directory constructor
         private FileSystemNode(string name = "", FileSystemNode? parent = null)
         {
             if ((parent != null) && (!parent.IsDirectory))
@@ -239,7 +265,7 @@ namespace adventProj
 
             Parent = parent;  // can be null for a root dir node
             Name = name;
-            Size = 0;       // will be used as file size total
+            SizeOfFiles = 0;       // starts at zero, will be used as file size total as files added
             IsDirectory = true;
             Children = new List<FileSystemNode>();
         }
@@ -256,11 +282,11 @@ namespace adventProj
                 return "/";
             }
             else {
-                return $"./{this.Name}";
+                return $"{this.Parent.ToString()}{this.Name}/";
             }
         }
 
-        public uint Size
+        public uint SizeOfFiles
         {
             get; private set;
         }
@@ -329,9 +355,9 @@ namespace adventProj
             if (this.IsDirectory)
             {
 
-                FileSystemNode childFile = new FileSystemNode(name, size, this);
+                FileSystemNode childFile = new FileSystemNode(name, this, size);
                 Children.Add(childFile);
-                this.Size += size;  // directory size is just direct file sizes
+                this.SizeOfFiles += size;  // add file size in
 
             }
         }

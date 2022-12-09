@@ -19,17 +19,18 @@ namespace adventProj
                              "33549\n" +
                              "35390";
 
-                testInput = 
-                            "9\n6\n8\n4\n8"     
+                var testInput2 = 
+                            "99099\n" +  
+                            "99399\n" +
+                            "99399\n" +
+                            "99299\n" +
+                            "99009" 
                             ;
             }
 
             TreeGrid grid = TreeGrid.BuildTreeGrid(testInput);
 
-            // IsVisible = on edge (first or last row, first or last colummn) or higher number than rest in row or column
-
-            // count visible trees
-            retVal = grid.GetVisibleTreesInGrid();
+            retVal = grid.GetScenicScoresInGrid();
 
             return retVal;
         }
@@ -48,7 +49,7 @@ namespace adventProj
             }
             public void SetTree(uint height, uint row, uint column)
             {
-                if (row <= this.rows && column <= this.columns)
+                if (row < this.rows && column < this.columns)
                 {
                     Tree tree = new Tree();
                     tree.Height = height;
@@ -84,85 +85,87 @@ namespace adventProj
 
                 return grid;
             }
-            public uint GetVisibleTreesInGrid()
+            public uint GetScenicScoresInGrid()
             {
-                uint visibleCount = 0;
+                uint maxScenicScore = 0;
 
-                // Could calculate visible first (a little more efficient)
-                // and then just count up what was set.
+                // Get scenic score for all interior trees, keep track of highest score
+                // Edge trees have a score of zero, no need to calculate those
 
-                for (uint i=0; i < rows; i++)
+                for (uint i=1; i < rows-1; i++)
                 {
-                    for (uint j=0; j < columns; j++)
+                    for (uint j=1; j < columns-1; j++)
                     {
-                        bool isVisible = 
-                            IsOnEdge(i,j) ||
-                            IsVisibleFromRight(i,j) ||
-                            IsVisibleFromLeft(i,j) ||
-                            IsVisibleFromTop(i,j) ||
-                            IsVisibleFromBottom(i,j);
+                        uint scenicScore = 0;  
+                        
+                        scenicScore = 
+                            ScenicToLeft(i,j) *
+                            ScenicToRight(i,j) *
+                            ScenicToBottom(i,j) *
+                            ScenicToTop(i,j);
+                    
 
-                        if (isVisible)
+                        if (scenicScore > maxScenicScore)
                         {
-                            visibleCount++;
-                            continue;
+                            maxScenicScore = scenicScore;
                         }
                     }
+                    
                 }
-                return visibleCount;
+                return maxScenicScore;
             }
 
-            public bool IsVisibleFromLeft(uint row, uint column)
+            public uint ScenicToLeft(uint row, uint column)
             {
                 if (column == 0)
                 {
-                    // Edge tree is always visible from right
-                    return true;
+                    // zero trees to left
+                    return 0;
                 }
 
-                uint maxHeightSoFar = 0;
-                for (uint j=0; j<column; j++)
+                uint scenicScoreSoFar = 1;   // not on edge, we can see at least 1 tree
+                uint sourceTreeHeight = grid[row,column].Height;
+
+                for (uint j=column-1; j>0; j--)
                 {
-                    uint currentHeight = grid[row, j].Height;
-                    if (currentHeight > maxHeightSoFar)
+                    uint targetHeight = grid[row, j].Height;
+                    if (targetHeight >= sourceTreeHeight)
                     {
-                        maxHeightSoFar = currentHeight;
+                        // We found our view blocker
+                        return scenicScoreSoFar;
                     }
 
-                    if (grid[row, column].Height <= maxHeightSoFar)
-                    {
-                        // Already obscured by taller or equal height tree, don't need to continue
-                        return false;
-                    }
+                    scenicScoreSoFar++;
                 }
 
-                return true;
+                return scenicScoreSoFar;
             }
 
-            public bool IsVisibleFromRight(uint row, uint column)
+            public uint ScenicToRight(uint row, uint column)
             {
-                if (column == column - 1)
+                if (column == columns - 1)
                 {
-                    return true;
+                    // Zero trees to right
+                    return 0;
                 }
 
-                uint maxHeightSoFar = 0;
-                for (uint j=columns-1; j>column; j--)
+                uint scenicScoreSoFar = 1;   // not on edge, we can see at least 1 tree
+                uint sourceTreeHeight = grid[row,column].Height;
+
+                for (uint j=column+1; j<columns-1; j++)
                 {
-                    uint currentHeight = grid[row, j].Height;
-                    if (currentHeight > maxHeightSoFar)
+                    uint targetHeight = grid[row, j].Height;
+                    if (targetHeight >= sourceTreeHeight)
                     {
-                        maxHeightSoFar = currentHeight;
+                        // We found our view blocker
+                        return scenicScoreSoFar;
                     }
 
-                    if (grid[row, column].Height <= maxHeightSoFar)
-                    {
-                        // Already obscured by taller or equal height tree, don't need to continue
-                        return false;
-                    }
+                    scenicScoreSoFar++;
                 }
 
-                return true;
+                return scenicScoreSoFar;
+                
             }
 
             public bool IsOnEdge(uint row, uint column)
@@ -173,56 +176,54 @@ namespace adventProj
                 }
                 return false;
             }
-            public bool IsVisibleFromTop(uint row, uint column)
+            public uint ScenicToTop(uint row, uint column)
             {
                 if (row == 0)
                 {
-                    return true;
+                    return 0;
                 }
 
-                uint maxHeightSoFar = 0;
-                for (uint i=0; i<row; i++)
+                uint scenicScoreSoFar = 1;   // not on edge, we can see at least 1 tree
+                uint sourceTreeHeight = grid[row,column].Height;
+
+                for (uint i=row-1; i>0; i--)
                 {
-                    uint currentHeight = grid[i, column].Height;
-                    if (currentHeight > maxHeightSoFar)
+                    uint targetHeight = grid[i, column].Height;
+                    if (targetHeight >= sourceTreeHeight)
                     {
-                        maxHeightSoFar = currentHeight;
+                        // We found our view blocker
+                        return scenicScoreSoFar;
                     }
 
-                    if (grid[row, column].Height <= maxHeightSoFar)
-                    {
-                        // Already obscured by taller or equal height tree, don't need to continue
-                        return false;
-                    }
+                    scenicScoreSoFar++;
                 }
 
-                return true;
+                return scenicScoreSoFar;
             }
 
-            public bool IsVisibleFromBottom(uint row, uint column)
+            public uint ScenicToBottom(uint row, uint column)
             {
                 if (row == row - 1)
                 {
-                    return true;
+                    return 0;
                 }
 
-                uint maxHeightSoFar = 0;
-                for (uint i=rows-1; i>row; i--)
+                uint scenicScoreSoFar = 1;   // not on edge, we can see at least 1 tree
+                uint sourceTreeHeight = grid[row,column].Height;
+
+                for (uint i=row+1; i<rows-1; i++)
                 {
-                    uint currentHeight = grid[i, column].Height;
-                    if (currentHeight > maxHeightSoFar)
+                    uint targetHeight = grid[i, column].Height;
+                    if (targetHeight >= sourceTreeHeight)
                     {
-                        maxHeightSoFar = currentHeight;
+                        // We found our view blocker
+                        return scenicScoreSoFar;
                     }
 
-                    if (grid[row, column].Height <= maxHeightSoFar)
-                    {
-                        // Already obscured by taller or equal height tree, don't need to continue
-                        return false;
-                    }
+                    scenicScoreSoFar++;
                 }
 
-                return true;
+                return scenicScoreSoFar;
             }
         }
 

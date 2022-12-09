@@ -3,9 +3,9 @@ inputFile = open("../DayTwoInput.txt")
 inputLines = inputFile.readlines()
 inputFile.close()
 
-# test input score is 15, file input score is 11767
-testInput = "A Y\nB X\nC Z"
-inputLines = testInput.split('\n')
+# test input score is 15, file input score is 13886
+#testInput = "A Y\nB X\nC Z"
+#inputLines = testInput.split('\n')
 
 runningScore = 0
 inputBreak = True

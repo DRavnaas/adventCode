@@ -13,11 +13,24 @@ namespace adventProj
             if (String.IsNullOrEmpty(testInput))
             {
                 // part 1: test answer = ; test input file answer is 1391690
-                // part 2: test answer = ; test input file answer is 
-                testInput = "$ cd / \n$ ls \ndir a\n14848514 b.txt \n8504156 c.dat \ndir d\n" +
+                // part 2: test answer = 24933642 (dir d); test input file answer is 
+                // input has files in root, multiple subdirs from root
+                // 1 subdir with a subdir with a file
+                testInput = "$ cd / \n$ ls \n" + 
+                    "dir a\n14848514 b.txt \n8504156 c.dat \ndir d\n" +
                     "$ cd a \n$ ls \ndir e \n29116 f \n2557 g\n62596 h.lst\n" +
-                    "$ cd e \n$ls \n584 i \n$ cd .. \n$ cd .. \n$ cd d \n$ls \n" +
-                    "4060174 j \n8033020 d.log  \n5626152 d.ext  \n7214296 k";
+                    "$ cd e \n$ls \n584 i \n" + 
+                    "$ cd .. \n$ cd .. \n" +
+                    "$ cd d \n$ls \n" +
+                    "4060174 j \n8033020 d.log  \n5626152 d.ext  \n7214296 k \ndir x \ndir z\n" +
+                    "$ cd x \n $ ls \n10 j.txt\n" +
+                    "$ cd .. \n$ cd z \n $ ls \n10 k.txt \ndir y\n" +
+                    "$ cd y \n$ ls \n30 xyz.txt";
+
+                var testInput2 = "$cd / \n" +
+                            "$ ls \n" +
+                            "100 100.txt\n ";
+
             }
 
             FileSystem fs = FileSystem.BuildFileSystem(testInput);
@@ -117,10 +130,7 @@ namespace adventProj
             // current
             // if name not null, and is in the children names, and is directory
             // 
-            // child = GetChildNode(name)
-            // if child.IsDirectory 
-            // CurrentDirectory = child;
-
+   
             if (!string.IsNullOrWhiteSpace(name))
             {
                 switch (name)
@@ -136,6 +146,9 @@ namespace adventProj
                         {
                             CurrentDirectory = CurrentDirectory.Parent;
                         }
+                        else {
+                            Console.WriteLine("Unrecognized parent");
+                        }
                         break;
                     default:
                         // is there a child with that name that is a directory?
@@ -146,7 +159,7 @@ namespace adventProj
                         }
                         else
                         {
-                            Console.WriteLine($"No such child directory: {name}");
+                            Console.WriteLine($"Unrecognized child directory: {name}");
                         }
                         break;
                 }
@@ -200,6 +213,9 @@ namespace adventProj
                                     // list current directory contents - this is a cue to read in file names/sizes
                                     Console.WriteLine($"Listing/adding contents for directory {fs.CurrentDirectory}");
                                     break;
+                                default:
+                                    Console.WriteLine($"unrecogonized command {commandAndParams[1]}");
+                                    break;
                             }
 
                         }
@@ -214,6 +230,7 @@ namespace adventProj
                             {
                                 // add a child directory
                                 fs.CurrentDirectory.AddChildDir(name);
+                                Console.WriteLine($"\t Added directory {name}");
                             }
                             else
                             {
@@ -223,6 +240,9 @@ namespace adventProj
                                 {
                                     fs.CurrentDirectory.AddFile(name, size);
                                     Console.WriteLine($"\t\t Added file {name} size \t\t {size}");
+                                }
+                                else {
+                                    Console.WriteLine($"Unrecognized list output ${commandAndParams[0]}");
                                 }
                             }
                         }

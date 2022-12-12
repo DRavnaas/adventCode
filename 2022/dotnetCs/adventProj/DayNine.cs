@@ -10,7 +10,7 @@ namespace adventProj
         internal override string GetInput()
         {
             string testInput = string.Empty;
-            bool useTestInput = true;
+            bool useTestInput = true;  // test input answer is 13
             if (useTestInput)
             {
                 testInput = "R 4 \n" +
@@ -24,7 +24,7 @@ namespace adventProj
             }
             else
             {
-                testInput = ReadInputToText("DayEightInput.txt");
+                testInput = ReadInputToText("../../DayNineInput.txt");
             }
 
             return testInput;
@@ -37,8 +37,12 @@ namespace adventProj
             string[] lines = testInput.Split('\n');
             foreach(string move in lines)
             {
+                grid.PrintGrid();
+
                 if (!string.IsNullOrWhiteSpace(move) && move.Count() >= 3)
                 {
+                    Console.WriteLine($"\n About to process next move {move}...");
+
                     char direction = move[0];
                     int numSteps = int.Parse(move[2].ToString());
                     grid.Move(direction, numSteps);
@@ -116,7 +120,7 @@ namespace adventProj
 
         internal Grid(int rows, int columns)
         {
-            // Grid starts in lower left corner
+            // Grid starts in lower left corner?
             Start = new GridPosition(rows-1, 0);
             Head = new GridPosition(Start);
             Tail = new GridPosition(Head);
@@ -185,47 +189,83 @@ namespace adventProj
                 
                 if (diagonalCell || (rowDistance + colDistance <= 1))
                 {
-                    // No need to move the tail
+                    // No need to move the tail, we are touching
                     continue;
                 }
-                //else if ((rowDistance == 2) || (colDistance == 2))
-                //{
-                    // diagonal move
-                 //}
                 else
                 {
-                    if (rowDistance == 2)
+                    // Allowed (prefer?) a diagonal move?  Otherwise move row or column only.
+                    bool moveDiagonally = (Head.Row != Tail.Row) && (Head.Column != Tail.Column);
+ 
+                    if ((rowDistance == 2) || moveDiagonally)
                     {
                         // move up or down
                         if (Head.Row > Tail.Row)
                         {
                             // move down
-                            Tail.Row ++;
+                            Tail.Row = Tail.Row + 1;
                         }
                         else {
                             // move up
-                            Tail.Row --;
+                            Tail.Row = Tail.Row -1;
                         }
                     }
-                    if (colDistance == 2)
+                    if ((colDistance == 2) || moveDiagonally)
                     {
                         // move left or right
                         if (Head.Column > Tail.Column)
                         {
                             // Move right
-                            Tail.Column++;
+                            Tail.Column = Tail.Column + 1;
                         }
                         else {
                             // Move left
-                            Tail.Column --;
+                            Tail.Column = Tail.Column - 1;
                         }
-
                     }
                 }
 
 
                 // Keep track of tail positions (note that adding an already visited value is ok)
                 TailPositions.Add(Tail.ToString());
+            }
+        }
+
+        public void PrintGrid()
+        {
+            for (int i=0; i< numRows; i++)
+            {
+                Console.Write($"[{i}]: ");
+                int tailPositions = 0;
+                for (int j=0; j< numColumns; j++)
+                {
+                    GridPosition pos = new GridPosition(i, j);
+                    bool previousTail = TailPositions.Contains(pos.ToString());
+                    if (previousTail)
+                    {
+                        tailPositions++;
+                    }
+
+                    if (pos.Equals(Head))
+                    {
+                        Console.Write('H');
+                    }
+                    else if (pos.Equals(Tail))
+                    {
+                        Console.Write('T');
+                    }
+                    else if (pos.Equals(Start))
+                    {
+                        Console.Write('s');
+                    }
+                    else if (previousTail)
+                    {
+                        Console.Write('#');
+                    }
+                    else Console.Write('.');
+                }
+
+                Console.WriteLine($" = {tailPositions}");
             }
         }
     }

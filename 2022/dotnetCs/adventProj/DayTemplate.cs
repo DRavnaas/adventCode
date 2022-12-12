@@ -6,6 +6,10 @@ namespace adventProj
 
     internal class DayTemplate
     {
+        internal virtual string GetInput()
+        {
+            return string.Empty;
+        }
 
         internal virtual object GetAnswer(string testInput)
         {
@@ -14,6 +18,18 @@ namespace adventProj
             if (String.IsNullOrEmpty(testInput))
             {
                 testInput = "";
+            }
+
+            return retVal;
+        }
+
+        internal static string ReadInputToText(string filename)
+        {
+            string retVal = String.Empty;
+
+            if (!String.IsNullOrWhiteSpace(filename) && System.IO.File.Exists(filename))
+            {
+                retVal = System.IO.File.ReadAllText(filename);
             }
 
             return retVal;

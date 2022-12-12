@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {    
-            uint currentDay = 7; // which day are we working on
+            uint currentDay = 9; // which day are we working on
 
             var solutions = new DayTemplate[] 
                 {new DayOne(), 
@@ -14,16 +14,13 @@
                 new DayFive(), 
                 new DaySix(),
                 new DaySeven(),
-                new DayEight()
+                new DayEight(),
+                new DayNine()
                 };
 
             string testInput = String.Empty;
 
-            if (args.Any())
-            {
-                Console.WriteLine($"Reading input from {args[0]}");
-                testInput = ReadInputToText(args[0]);
-            }
+            testInput = solutions[currentDay-1].GetInput();
                         
             var result = solutions[currentDay-1].GetAnswer(testInput);
 

@@ -219,7 +219,6 @@ namespace adventProj
                                 operand2 = tempNum;
                             }
                             break;
-
                     }
 
                 }

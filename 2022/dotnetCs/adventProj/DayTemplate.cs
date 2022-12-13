@@ -8,16 +8,28 @@ namespace adventProj
     {
         internal virtual string GetInput()
         {
-            return string.Empty;
+            string testInput = string.Empty;
+            bool useTestInput = false;  // test input answer is 13
+            if (useTestInput)
+            {
+                testInput = "\n" +
+                             "";
+            }
+            else
+            {
+                //testInput = ReadInputToText("../../DayXInput.txt");
+            }
+
+            return testInput;  
         }
 
         internal virtual object GetAnswer(string testInput)
         {
             uint retVal = 0;
 
-            if (String.IsNullOrEmpty(testInput))
+            string[] lines = testInput.Split('\n');
+            foreach(string line in lines)
             {
-                testInput = "";
             }
 
             return retVal;

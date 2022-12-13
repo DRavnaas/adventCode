@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {    
-            uint currentDay = 9; // which day are we working on
+            uint currentDay = 10; // which day are we working on
 
             var solutions = new DayTemplate[] 
                 {new DayOne(), 
@@ -15,7 +15,8 @@
                 new DaySix(),
                 new DaySeven(),
                 new DayEight(),
-                new DayNine()
+                new DayNine(),
+                new DayTen()
                 };
 
             string testInput = String.Empty;

@@ -27,7 +27,7 @@ namespace adventProj
             }
             else
             {
-                // output of crt is EHZFZHCZ
+                // output of crt
                 testInput = ReadInputToText("../../DayTenInput.txt");
             }
 

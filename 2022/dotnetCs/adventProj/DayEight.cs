@@ -19,13 +19,13 @@ namespace adventProj
                              "33549\n" +
                              "35390";
 
-                var testInput2 = 
-                            "99099\n" +  
-                            "99399\n" +
-                            "99399\n" +
-                            "99299\n" +
-                            "99009" 
-                            ;
+                // var testInput2 = 
+                //             "99099\n" +  
+                //             "99399\n" +
+                //             "99399\n" +
+                //             "99299\n" +
+                //             "99009" 
+                //             ;
             }
 
             TreeGrid grid = TreeGrid.BuildTreeGrid(testInput);

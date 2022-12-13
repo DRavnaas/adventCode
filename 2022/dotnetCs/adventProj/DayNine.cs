@@ -10,7 +10,7 @@ namespace adventProj
         internal override string GetInput()
         {
             string testInput = string.Empty;
-            bool useTestInput = true;  // test input answer is 13
+            bool useTestInput = false;  // test input answer is 13
             if (useTestInput)
             {
                 testInput = "R 4 \n" +
@@ -32,12 +32,12 @@ namespace adventProj
 
         internal override object GetAnswer(string testInput)
         {
-            Grid grid = new Grid(5,6);
+            Grid grid = new Grid(0, 0); 
 
             string[] lines = testInput.Split('\n');
             foreach(string move in lines)
             {
-                grid.PrintGrid();
+                //grid.PrintGrid();
 
                 if (!string.IsNullOrWhiteSpace(move) && move.Count() >= 3)
                 {
@@ -49,6 +49,8 @@ namespace adventProj
                 }
             }
 
+            // test input answer is 13
+            // test input file answer is not.. 3175
             return grid.GetNumberTailPositions();
         }
     }
@@ -105,8 +107,8 @@ namespace adventProj
     internal class Grid
     {
 
-        int numRows;
-        int numColumns;
+        GridPosition TopLeft;
+        GridPosition BottomRight;
         GridPosition Start;
         GridPosition Head;
         GridPosition Tail;
@@ -118,28 +120,44 @@ namespace adventProj
             return TailPositions.Count();
         }
 
-        internal Grid(int rows, int columns)
+        internal Grid(int row, int column)
         {
             // Grid starts in lower left corner?
-            Start = new GridPosition(rows-1, 0);
+            Start = new GridPosition(row, column);
             Head = new GridPosition(Start);
             Tail = new GridPosition(Head);
-            numRows = rows;
-            numColumns = columns;
+            TopLeft = new GridPosition(Start);
+            BottomRight = new GridPosition(Start);
+
+
+            //numColumns = columns;
             TailPositions = new HashSet<string>();
 
-            // Add the first position
+            // Add the starting position
             TailPositions.Add(Tail.ToString());
         }
 
-        internal bool InGrid(int row, int column)
+        // For printing - determine where our grid corners are
+         internal void AdjustGridKnownArea(int row, int column)
         {
-            if (row >= 0 && column >= 0 && row < this.numRows && column < this.numColumns)
+            if (row < TopLeft.Row)
             {
-                return true;
+                TopLeft.Row = row;
             }
-            else {
-                return false;  // Not expected from input, here for debugging.
+
+            if (column < TopLeft.Column)
+            {
+                TopLeft.Column = column;
+            }
+
+            if (row > BottomRight.Row)
+            {
+                BottomRight.Row = row;
+            }
+
+            if (column > BottomRight.Column)
+            {
+                BottomRight.Column = column;
             }
         }
 
@@ -154,25 +172,25 @@ namespace adventProj
                 {
                     // Move the head one position (only cardinal directions, no diagonals)
                     case 'R':
-                        if (InGrid(Head.Row, Head.Column+1))
+                        //if (InGrid(Head.Row, Head.Column+1))
                         {
                             Head.Column = Head.Column+1;
                         }
                         break;
                     case 'L':
-                        if (InGrid(Head.Row, Head.Column-1))
+                        //if (InGrid(Head.Row, Head.Column-1))
                         {
                             Head.Column = Head.Column-1;
                         }
                         break;
                     case 'U':
-                        if (InGrid(Head.Row-1, Head.Column))
+                        //if (InGrid(Head.Row-1, Head.Column))
                         {
                             Head.Row = Head.Row-1;
                         }
                         break;
                     case 'D':
-                        if (InGrid(Head.Row+1, Head.Column))
+                        //if (InGrid(Head.Row+1, Head.Column))
                         {
                             Head.Row = Head.Row+1;
                         }
@@ -187,12 +205,8 @@ namespace adventProj
                 int colDistance =  int.Abs(Head.Column - Tail.Column);
                 bool diagonalCell = (rowDistance == 1 && colDistance == 1);
                 
-                if (diagonalCell || (rowDistance + colDistance <= 1))
-                {
-                    // No need to move the tail, we are touching
-                    continue;
-                }
-                else
+                // Check if there's any need to move the tail (we might be touching as-is)
+                if (!diagonalCell && (rowDistance + colDistance > 1))
                 {
                     // Allowed (prefer?) a diagonal move?  Otherwise move row or column only.
                     bool moveDiagonally = (Head.Row != Tail.Row) && (Head.Column != Tail.Column);
@@ -225,19 +239,25 @@ namespace adventProj
                     }
                 }
 
-
                 // Keep track of tail positions (note that adding an already visited value is ok)
                 TailPositions.Add(Tail.ToString());
             }
         }
 
+        // For debugging, print out the grid state (start, head, tail and where the tail has been)
         public void PrintGrid()
         {
-            for (int i=0; i< numRows; i++)
+            AdjustGridKnownArea(Head.Row, Head.Column);
+            AdjustGridKnownArea(Tail.Row, Tail.Column);
+
+            int numRows = BottomRight.Row - TopLeft.Row + 1;
+            int numColumns = BottomRight.Column - TopLeft.Column + 1;
+
+            for (int i=TopLeft.Row; i<= BottomRight.Row; i++)
             {
                 Console.Write($"[{i}]: ");
                 int tailPositions = 0;
-                for (int j=0; j< numColumns; j++)
+                for (int j=TopLeft.Column; j<= BottomRight.Column; j++)
                 {
                     GridPosition pos = new GridPosition(i, j);
                     bool previousTail = TailPositions.Contains(pos.ToString());

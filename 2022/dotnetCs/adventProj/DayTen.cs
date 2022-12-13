@@ -27,6 +27,7 @@ namespace adventProj
             }
             else
             {
+                // output of crt is EHZFZHCZ
                 testInput = ReadInputToText("../../DayTenInput.txt");
             }
 
@@ -63,14 +64,29 @@ namespace adventProj
                     // Iterate on cycles
                     for(int i=0; i< instructionCycles; i++)
                     {
-                        cycles++;
-                        if ((cycles == 20) || 
-                           ((cycles - 20) % 40 == 0))   // 60, 100, 140, 180, 220
+                        int crtPosition = cycles % 40;
+                        if ((crtPosition >= regX-1) && (crtPosition <= regX+1))
                         {
-                            if (cycles <= 220)
+                            Console.Write('#');
+                        }
+                        else {
+                            Console.Write('.');
+                        }
+
+                        cycles++;
+                        if (crtPosition == 39)  // 40 characters written
+                        {
+                            // New line
+                            Console.WriteLine();
+
+                            if (cycles > 240)
                             {
-                                int signal = cycles * regX;
-                                sums = sums + signal;
+                                // part 1
+                                //int signal = cycles * regX;
+                                //sums = sums + signal;
+
+                                break;
+
                             }
                         }
                     }

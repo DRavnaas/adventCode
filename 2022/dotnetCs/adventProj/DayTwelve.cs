@@ -115,7 +115,7 @@ namespace adventProj
         internal Dictionary<HeightPosition, List<HeightPosition>> PossiblePaths
         { private set; get; }
 
-        public HeightPosition Start
+        public List<HeightPosition> Start // part two, more than one potential starting point
         { get; set; }
 
         public HeightPosition End
@@ -127,6 +127,7 @@ namespace adventProj
             PossiblePaths = new Dictionary<HeightPosition, List<HeightPosition>>();
             Rows = rows;
             Columns = columns;
+            Start = new List<HeightPosition>();
         }
 
         public static HeightGrid ParseFromInput(string input)
@@ -154,10 +155,10 @@ namespace adventProj
                         {
                             HeightPosition newPoint;
 
-                            if (line[j] == 'S')
+                            if ((line[j] == 'S') || line[j] == 'a')  // part two, can start from 'S' or 'a'
                             {
                                 newPoint = new HeightPosition(i, j, 'a');
-                                parsedGrid.Start = newPoint;
+                                parsedGrid.Start.Add(newPoint);
                             }
                             else if (line[j] == 'E')
                             {
@@ -182,13 +183,16 @@ namespace adventProj
 
         internal bool FindPathToEnd()
         {
-            // startList is used for both the path to start and the candidate list
-            List<HeightPosition> startList = new List<HeightPosition>();
-            startList.Add(this.Start);
 
-            this.PossiblePaths.Add(this.Start, startList);
+            foreach(HeightPosition potentialStart in this.Start)
+            {
+                // startList is used for both the path to start (= just the node) and the candidate list
+                List<HeightPosition> startList = new List<HeightPosition>();
+                startList.Add(potentialStart);
+                this.PossiblePaths.Add(potentialStart, startList);
+            }
 
-            FindPathToEnd(new List<HeightPosition>(startList));
+            FindPathToEnd(new List<HeightPosition>(this.Start));
 
             // Did we find at least one path to the end node?
             return (this.PossiblePaths != null) && (this.PossiblePaths.ContainsKey(this.End));

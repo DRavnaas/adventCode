@@ -10,8 +10,8 @@ namespace adventProj
         internal override string GetInput()
         {
             string testInput = string.Empty;
-            bool useTestInput = true;  // test input answer is 10605 for part 1 / 2713310158 for part two
-            if (useTestInput)           
+            bool useTestInput = false;  // test input answer is 10605 for part 1 / 2713310158 for part two
+            if (useTestInput)
             {
                 testInput =       // part one answer is 31 steps
                    "Sabqponm \n" +
@@ -20,7 +20,8 @@ namespace adventProj
                    "acctuvwj \n" +
                    "abdefghi ";
             }
-            else {
+            else
+            {
                 // 
                 testInput = ReadInputToText("../../DayTwelveInput.txt");
 
@@ -37,46 +38,44 @@ namespace adventProj
             // keep track of various paths (some will deadend)
             if (grid.FindPathToEnd())
             {
-                int minPathSize = int.MaxValue;
-                List<int> pathSizes = grid.PossiblePaths.Values.Select( x => x.Count()).ToList<int>();
-                pathSizes.Sort();
-                return pathSizes.TakeLast(1).First();
-                
+                var pathToEnd = grid.PossiblePaths[grid.End];
+                return pathToEnd.Count() - 1;  // count steps = nodes - 1
             }
 
-            // Work out which path was shortest
-
-            return 0;
+            return -1;  // not found
         }
     }
 
     public class HeightPosition
     {
         public int Height
-        { get; set;}
+        { get; set; }
 
         public GridPosition Position
         { get; set; }
 
-        public bool Visited
+        // Need this to detect the end node
+        public bool IsEnd
         {
             get; set;
         }
 
-        public HeightPosition(int row, int column, int height=0)
+        public HeightPosition(int row, int column, int height = 0, bool isEnd = false)
         {
             Position = new GridPosition(row, column);
             Height = height;
+            IsEnd = isEnd;
         }
-        public HeightPosition(int row, int column, char height='a')
+        public HeightPosition(int row, int column, char height = 'a', bool isEnd = false)
         {
             Position = new GridPosition(row, column);
-            Height = height - (int)'a';
+            Height = height - (int)'a';  // Height of zero denoted by 'a' on grid
+            IsEnd = isEnd;
         }
 
         public override string ToString()
         {
-            return Position.ToString() + $":{Height}";
+            return Position.ToString() + $":{Height} {IsEnd}";
         }
 
         public override int GetHashCode()
@@ -114,17 +113,17 @@ namespace adventProj
 
         // Key = ending position so far (= end if done), value = path to that position
         internal Dictionary<HeightPosition, List<HeightPosition>> PossiblePaths
-        { private set; get;}
+        { private set; get; }
 
         public HeightPosition Start
-        { get; set;}
+        { get; set; }
 
         public HeightPosition End
         { get; set; }
-        
+
         internal HeightGrid(int rows, int columns)
         {
-            heights = new HeightPosition[rows,columns];
+            heights = new HeightPosition[rows, columns];
             PossiblePaths = new Dictionary<HeightPosition, List<HeightPosition>>();
             Rows = rows;
             Columns = columns;
@@ -137,9 +136,9 @@ namespace adventProj
             if (!String.IsNullOrEmpty(input))
             {
                 string[] lines = input.Split('\n');
-                
+
                 int lineCount = 0;
-                for(int i=0; i< lines.Count(); i++)
+                for (int i = 0; i < lines.Count(); i++)
                 {
                     string line = lines[i];
                     if (!String.IsNullOrEmpty(line))
@@ -151,29 +150,29 @@ namespace adventProj
                             parsedGrid = new HeightGrid(lines.Count(), line.Count());
                         }
 
-                        for(int j=0; j< line.Count(); j++)
+                        for (int j = 0; j < line.Count(); j++)
                         {
                             HeightPosition newPoint;
-                            
+
                             if (line[j] == 'S')
                             {
-                                newPoint = new HeightPosition(i,j,0);
+                                newPoint = new HeightPosition(i, j, 'a');
                                 parsedGrid.Start = newPoint;
                             }
                             else if (line[j] == 'E')
                             {
-                                newPoint = new HeightPosition(i,j,0);
-                                parsedGrid.End = newPoint;        
+                                newPoint = new HeightPosition(i, j, 'z', true);
+                                parsedGrid.End = newPoint;
                             }
                             else
                             {
                                 // Set the height to 1-27, based on the letter
-                                newPoint =new HeightPosition(i,j, line[j]-'a'+1);
+                                newPoint = new HeightPosition(i, j, line[j]);
                             }
-                                
-                            parsedGrid.heights[i,j] = newPoint;
+
+                            parsedGrid.heights[i, j] = newPoint;
                         }
-                        
+
                     }
                 }
             }
@@ -183,83 +182,98 @@ namespace adventProj
 
         internal bool FindPathToEnd()
         {
-            List<HeightPosition> startPath = new List<HeightPosition>();
-            startPath.Add(this.Start);
+            // startList is used for both the path to start and the candidate list
+            List<HeightPosition> startList = new List<HeightPosition>();
+            startList.Add(this.Start);
 
-            FindPathToEnd(startPath);
+            this.PossiblePaths.Add(this.Start, startList);
 
-            return (this.PossiblePaths != null) && (this.PossiblePaths.Count() > 0);
+            FindPathToEnd(new List<HeightPosition>(startList));
+
+            // Did we find at least one path to the end node?
+            return (this.PossiblePaths != null) && (this.PossiblePaths.ContainsKey(this.End));
         }
 
-        private bool FindPathToEnd(List<HeightPosition> pathSoFar)
+        private bool FindPathToEnd(List<HeightPosition> candidates)
         {
-            // input = a valid path so far
-
-            HeightPosition lastPoint = pathSoFar.Last();
-            lastPoint.Visited = true;
-            int row = lastPoint.Position.Row;
-            int column = lastPoint.Position.Column;
-            int height = lastPoint.Height;
-
-            if (lastPoint.Equals(this.End))
+            // Input = list of candidate grid nodes to assess, in order.
+            // key is that candidates are added in progressively longer path lengths
+            // (So the first time we hit End, it's the shortest path)
+            // Keep checking the first candidate (and removing it from the list)
+            bool pathFound = false;
+            while (candidates.Any())
             {
-                this.PossiblePaths.Add(this.End, pathSoFar);
-                return true;
-            }
+                HeightPosition current = candidates.First();
 
-            // keep looking
-            bool anyFound = false;
-
-            for(int x=0; x < 4; x++)
-            {
-                HeightPosition nextPos = null;
-
-                switch(x)
+                candidates.Remove(current);
+                if (current.Equals(this.End))
                 {
- 
-                    case 0:
-                        // look up
-                        if (row > 0)
-                        {
-                            nextPos = this.heights[row-1, column];
-                        }
-                        
-                        break;
-                    case 1:
-                        // look down
-                        if (row < this.Rows -1)
-                        {
-                            nextPos = this.heights[row+1, column];
-                        }
-                        break;
-                    case 2:
-                        // look right
-                        if (column < this.Columns - 1)
-                        {
-                            nextPos = this.heights[row, column+1];
-                        }
-                        break;
-                    case 3:
-                        // look left
-                        if (column > 0)
-                        {
-                            nextPos = this.heights[row, column-1];
-                        }
-                        break;
+                    pathFound = true;
+                    break;
                 }
 
-                if ((nextPos != null) && (!nextPos.Visited))
+                int row = current.Position.Row;
+                int column = current.Position.Column;
+                int height = current.Height;
+
+                // find and add unvisited valid neighbors of current as candidates
+
+                for (int x = 0; x < 4; x++)
                 {
-                    if (nextPos.Height <= height + 1)
+                    HeightPosition validNeighbor = null;
+
+                    switch (x)
                     {
-                        pathSoFar.Add(nextPos);
-                        anyFound = anyFound || FindPathToEnd(pathSoFar);
+                        case 0:
+                            // look up
+                            if (row > 0)
+                            {
+                                validNeighbor = this.heights[row - 1, column];
+                            }
+
+                            break;
+                        case 1:
+                            // look down
+                            if (row < this.Rows - 1)
+                            {
+                                validNeighbor = this.heights[row + 1, column];
+                            }
+                            break;
+                        case 2:
+                            // look right
+                            if (column < this.Columns - 1)
+                            {
+                                validNeighbor = this.heights[row, column + 1];
+                            }
+                            break;
+                        case 3:
+                            // look left
+                            if (column > 0)
+                            {
+                                validNeighbor = this.heights[row, column - 1];
+                            }
+                            break;
+                    }
+
+                    // Is this a new valid candidate?
+                    if ((validNeighbor == null) || this.PossiblePaths.ContainsKey(validNeighbor))
+                    {
+                        // don't need to add anything
+                        continue;
+                    }
+                    if (validNeighbor.Height <= height+1)
+                    {
+                        // Build and save path for this new candidate
+                        var newPath = new List<HeightPosition>(this.PossiblePaths[current]);
+                        newPath.Add(validNeighbor);
+                        this.PossiblePaths.Add(validNeighbor, newPath);
+
+                        candidates.Add(validNeighbor);
                     }
                 }
-
             }
 
-            return anyFound;
+            return pathFound;
         }
     }
 }

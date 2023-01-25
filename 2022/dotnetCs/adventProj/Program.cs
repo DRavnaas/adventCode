@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {    
-            uint currentDay = 12; // which day are we working on
+            uint currentDay = 13; // which day are we working on
 
             var solutions = new DayTemplate[] 
                 {new DayOne(), 

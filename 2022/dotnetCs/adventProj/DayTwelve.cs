@@ -88,7 +88,7 @@ namespace adventProj
             if ((obj != null) && (obj.GetType() == typeof(HeightPosition)))
             {
                 HeightPosition temp = (HeightPosition)obj;
-                if (this.Position.Equals(temp.Position) && (this.Height == temp.Height))
+                if (this.Position.Equals(temp.Position) && (this.Height == temp.Height) && (this.IsEnd == temp.IsEnd))
                 {
                     return true;
                 }

@@ -168,6 +168,7 @@ namespace adventProj
             {
                 var oldTail = Tail;
 
+                // Move the head one step in the requested direction
                 switch (direction)
                 {
                     // Move the head one position (only cardinal directions, no diagonals)
@@ -200,7 +201,7 @@ namespace adventProj
                         break;
                 }
 
-                // Now assess tail move
+                // Now assess tail move - is the head more than one away?
                 int rowDistance = int.Abs(Head.Row - Tail.Row);
                 int colDistance =  int.Abs(Head.Column - Tail.Column);
                 bool diagonalCell = (rowDistance == 1 && colDistance == 1);
@@ -208,7 +209,7 @@ namespace adventProj
                 // Check if there's any need to move the tail (we might be touching as-is)
                 if (!diagonalCell && (rowDistance + colDistance > 1))
                 {
-                    // Allowed (prefer?) a diagonal move?  Otherwise move row or column only.
+                    // Should we make a diagonal move?  Otherwise move row or column only.
                     bool moveDiagonally = (Head.Row != Tail.Row) && (Head.Column != Tail.Column);
  
                     if ((rowDistance == 2) || moveDiagonally)
@@ -241,14 +242,16 @@ namespace adventProj
 
                 // Keep track of tail positions (note that adding an already visited value is ok)
                 TailPositions.Add(Tail.ToString());
+
+                // For debugging - adjust our grid boundaries by where the head/tail are now
+                AdjustGridKnownArea(Head.Row, Head.Column);
+                AdjustGridKnownArea(Tail.Row, Tail.Column);
             }
         }
 
         // For debugging, print out the grid state (start, head, tail and where the tail has been)
         public void PrintGrid()
         {
-            AdjustGridKnownArea(Head.Row, Head.Column);
-            AdjustGridKnownArea(Tail.Row, Tail.Column);
 
             int numRows = BottomRight.Row - TopLeft.Row + 1;
             int numColumns = BottomRight.Column - TopLeft.Column + 1;
@@ -285,7 +288,7 @@ namespace adventProj
                     else Console.Write('.');
                 }
 
-                Console.WriteLine($" = {tailPositions}");
+                Console.WriteLine($" =  count {tailPositions}");
             }
         }
     }

@@ -5,12 +5,11 @@ namespace adventProj
 
     internal class DaySeven : DayTemplate
     {
-
-        internal override object GetAnswer(string testInput)
+        internal override string GetInput()
         {
-            uint retVal = 0;
-
-            if (String.IsNullOrEmpty(testInput))
+            string testInput = string.Empty;
+            bool useTestInput = false;  // test input answer is 13
+            if (useTestInput)
             {
                 // part 1: test answer = ; test input file answer is 1391690
                 // part 2: test answer = 24933642 (dir d); test input file answer is 
@@ -22,16 +21,24 @@ namespace adventProj
                     "$ cd e \n$ls \n584 i \n" + 
                     "$ cd .. \n$ cd .. \n" +
                     "$ cd d \n$ls \n" +
-                    "4060174 j \n8033020 d.log  \n5626152 d.ext  \n7214296 k \ndir x \ndir z\n" +
-                    "$ cd x \n $ ls \n10 j.txt\n" +
-                    "$ cd .. \n$ cd z \n $ ls \n10 k.txt \ndir y\n" +
-                    "$ cd y \n$ ls \n30 xyz.txt";
+                    "4060174 j \n8033020 d.log  \n5626152 d.ext  \n7214296 k";
+                    
 
-                var testInput2 = "$cd / \n" +
+                var testInput2 = "\n$ cd / \n" +
                             "$ ls \n" +
                             "100 100.txt\n ";
-
             }
+            else
+            {
+                testInput = ReadInputToText("../../DaySevenInput.txt");
+            }
+
+            return testInput;
+        }
+
+        internal override object GetAnswer(string testInput)
+        {
+            uint retVal = 0;
 
             FileSystem fs = FileSystem.BuildFileSystem(testInput);
 
@@ -49,19 +56,21 @@ namespace adventProj
                 Console.WriteLine(" used space more than total space");
             }
 
-            if (totalSpace - usedSpace < desiredSpaceFree)
+            if (totalSpace - usedSpace <= desiredSpaceFree)
             {
                 desiredSpaceFree = usedSpace - desiredSpaceFree;
                 Console.WriteLine($"need to free up \t {desiredSpaceFree} more");
             }
 
             uint closestCandidateSize = uint.MaxValue;
+            Dictionary<string, uint> debugDirsAndTotalSizes = new Dictionary<string, uint>();
 
             foreach (FolderDetails dir in dirs)
             {
                 uint totalSizeIncludingSubdirs = dir.SizeOfSubDirs + dir.SizeOfFiles;
+                debugDirsAndTotalSizes.Add(dir.Name, totalSizeIncludingSubdirs);
                 
-                Console.WriteLine($" \t {dir.SizeOfFiles} \t + \t {dir.SizeOfSubDirs} = total  size \t {totalSizeIncludingSubdirs} \t for  \t {dir.Name}");
+                //Console.WriteLine($" \t {dir.SizeOfFiles} \t + \t {dir.SizeOfSubDirs} = total  size \t {totalSizeIncludingSubdirs} \t for  \t {dir.Name}");
                 if (totalSizeIncludingSubdirs >= desiredSpaceFree)
                 {
                     //Console.WriteLine($"Candidate {dir.Name} size {totalSizeIncludingSubdirs} > {desiredSpaceFree}");
@@ -70,6 +79,21 @@ namespace adventProj
                         closestCandidateSize = totalSizeIncludingSubdirs;
                         retVal = closestCandidateSize;
                     }
+                }
+            }
+
+            var sortedKeys = debugDirsAndTotalSizes.Keys.ToList();
+            sortedKeys.Sort();
+            sortedKeys.Reverse();
+            foreach(string key in sortedKeys)
+            {
+                var dirSize = debugDirsAndTotalSizes[key];
+
+                // print out top level directories
+                string[] subDirs = key.Split('/');
+                //if ((subDirs != null && subDirs.Count() == 3) || key.Contains("gsszlj"))
+                {
+                    Console.WriteLine($"   {key} \t\t {dirSize}");
                 }
             }
 
@@ -200,10 +224,9 @@ namespace adventProj
                                     {
                                         // could be /  . .. or <child directory name>
                                         string directoryName = commandAndParams[2];
+                                        Console.WriteLine($"current directory file size = {fs.CurrentDirectory.SizeOfFiles}");
                                         fs.MoveToDirectory(directoryName);
                                         Console.WriteLine($"Changed to directory {fs.CurrentDirectory}");
-
-
                                     }
                                     break;
 
@@ -240,6 +263,10 @@ namespace adventProj
                                 {
                                     fs.CurrentDirectory.AddFile(name, size);
                                     Console.WriteLine($"\t\t Added file {name} size \t\t {size}");
+                                    if (fs.CurrentDirectory.Name.Contains("gsszlj"))
+                                    {
+                                      //Console.WriteLine($"\t\t Added file {name} size \t\t {size}");  
+                                    }
                                 }
                                 else {
                                     Console.WriteLine($"Unrecognized list output ${commandAndParams[0]}");
@@ -302,8 +329,13 @@ namespace adventProj
                 return "/";
             }
             else {
-
-                return $"{this.Parent.ToString()}{this.Name}/";
+                if (this.IsDirectory)
+                {
+                    return $"{this.Parent.ToString()}{this.Name}/";
+                }
+                else {
+                    return $"{this.Parent.ToString()}{this.Name}";
+                }
             }
         }
 

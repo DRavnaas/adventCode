@@ -1,3 +1,4 @@
+// Template only, needs guts
 namespace adventProj
 {
     using System.Collections;
